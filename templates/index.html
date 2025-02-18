@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CVE安全風險漏洞諮詢</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>CVE安全風險漏洞諮詢</h1>
+        <div class="chat-box">
+            <div id="messages"></div>
+            <div class="input-area">
+                <input type="text" id="question" placeholder="輸入關於CVE的問題...">
+                <button onclick="askQuestion()">發送</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function appendMessage(text, isBot=false) {
+            const messages = document.getElementById('messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${isBot ? 'bot' : 'user'}`;
+            msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+            messages.appendChild(msgDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        async function askQuestion() {
+            const questionInput = document.getElementById('question');
+            const question = questionInput.value.trim();
+
+            if (!question) return;
+
+            appendMessage(question);
+            questionInput.value = '';
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    appendMessage(`系統錯誤: ${data.error}`, true);
+                } else {
+                    appendMessage(data.answer, true);
+                }
+            } catch (error) {
+                appendMessage('網路連接失敗，請稍後再試', true);
+            }
+        }
+
+        //  按enter 按鈕就可以發送
+        document.getElementById('question').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') askQuestion();
+        });
+    </script>
+</body>
+</html>
