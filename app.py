@@ -8,7 +8,7 @@ import os
 app = Flask(__name__)
 
 # 配置NVIDIA API
-os.environ["NVIDIA_API_KEY"] = "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"
+os.environ["NVIDIA_API_KEY"] = "your api key"
 
 # 初始化模型和DB
 llm = ChatNVIDIA(model="meta/llama3-70b-instruct", temperature=0.7, max_tokens=512)
